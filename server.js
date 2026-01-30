@@ -77,9 +77,9 @@ app.get('/', async (req, res) => {
                                 ${pub.FIELD9 ? '<span style="color: orange;">Emprunté</span>' : '<span style="color: green;">Disponible</span>'}
                             </p>
                             ${pub.FIELD9 
-                                ? `<button class="retour" onclick="retourner('${pub._id}')">📥 Retourner</button>`
-                                : `<button onclick="emprunter('${pub._id}')">📤 Emprunter</button>`
-                            }
+                            ? `<button class="retour" onclick="retourner('${pub._id.replace(/'/g, "\\'")}')">📥 Retourner</button>`
+                            : `<button onclick="emprunter('${pub._id.replace(/'/g, "\\'")}')">📤 Emprunter</button>`
+                        }
                         </div>
                     `).join('')}
                 </div>
@@ -102,15 +102,15 @@ app.get('/', async (req, res) => {
             
             <script>
                 function emprunter(id) {
-                    if (confirm('Emprunter ce document ?')) {
-                        fetch('/emprunter/' + id, { method: 'POST' })
+    if (confirm('Emprunter ce document ?')) {
+        fetch('/emprunter/' + encodeURIComponent(id), { method: 'POST' })
                             .then(() => location.reload());
                     }
                 }
                 
                 function retourner(id) {
-                    if (confirm('Retourner ce document ?')) {
-                        fetch('/retourner/' + id, { method: 'POST' })
+    if (confirm('Retourner ce document ?')) {
+        fetch('/retourner/' + encodeURIComponent(id), { method: 'POST' })
                             .then(() => location.reload());
                     }
                 }
@@ -123,7 +123,45 @@ app.get('/', async (req, res) => {
         res.status(500).send('Erreur serveur: ' + error.message);
     }
 });
+// Middleware pour parser les données POST
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+// Route pour emprunter un document
+app.post('/emprunter/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Mettre à jour le document avec FIELD9 = "emprunté"
+        await db.collection('publications').updateOne(
+            { _id: id },
+            { $set: { FIELD9: 'emprunté' } }
+        );
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Erreur emprunter:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Route pour retourner un document
+app.post('/retourner/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Mettre à jour le document avec FIELD9 = null (ou supprimer le champ)
+        await db.collection('publications').updateOne(
+            { _id: id },
+            { $unset: { FIELD9: '' } }  // Supprime le champ FIELD9
+        );
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Erreur retourner:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 // Démarrage
 connectDB().then(() => {
     app.listen(port, () => {
