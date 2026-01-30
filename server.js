@@ -31,17 +31,37 @@ app.get('/', async (req, res) => {
         const limit = 20; // Nombre de publications par page
         const skip = (page - 1) * limit; // Nombre à sauter
         
-        // Compter le total de publications
-        const totalPublications = await db.collection('publications').countDocuments();
-        const totalPages = Math.ceil(totalPublications / limit);
+       
         
-        // Récupérer les publications de la page actuelle
-        const publications = await db.collection('publications')
-            .find()
-            .skip(skip)
-            .limit(limit)
-            .toArray();
-        
+        // Récupération du texte recherché
+const q = req.query.q;
+
+// Filtre MongoDB
+let filter = {};
+
+if (q && q.trim() !== "") {
+    filter = {
+        $or: [
+            { title: { $regex: q, $options: "i" } },
+            { authors: { $regex: q, $options: "i" } },
+            { year: { $regex: q, $options: "i" } }
+        ]
+    };
+}
+
+// Compter total avec filtre
+const totalPublications = await db.collection("publications").countDocuments(filter);
+const totalPages = Math.ceil(totalPublications / limit);
+
+// Récupérer publications filtrées
+const publications = await db.collection("publications")
+    .find(filter)
+    .skip(skip)
+    .limit(limit)
+    .toArray();
+
+        const searchParam = q ? `&q=${encodeURIComponent(q)}` : "";
+
         const html = `
         <!DOCTYPE html>
         <html lang="fr">
@@ -58,7 +78,17 @@ app.get('/', async (req, res) => {
 <br><br>
 
                 <p>Total : ${totalPublications} publications | Page ${page} sur ${totalPages}</p>
-                
+                <form method="GET" action="/" class="search-form">
+    <input 
+        type="text" 
+        name="q" 
+        placeholder="Rechercher un titre ou un auteur..."
+        value="${req.query.q || ""}"
+    >
+    <button type="submit">🔍 Rechercher</button>
+</form>
+<br>
+
                 <div class="publications-list">
                     ${publications.map(pub => `
                         <div class="document-card">
@@ -88,18 +118,19 @@ app.get('/', async (req, res) => {
                 
                 <!-- Pagination -->
                 <div class="pagination">
-                    ${page > 1 
-                        ? `<a href="?page=${page - 1}" class="btn-pagination">← Précédent</a>` 
-                        : '<span class="btn-pagination disabled">← Précédent</span>'
-                    }
-                    
-                    <span class="page-info">Page ${page} / ${totalPages}</span>
-                    
-                    ${page < totalPages 
-                        ? `<a href="?page=${page + 1}" class="btn-pagination">Suivant →</a>` 
-                        : '<span class="btn-pagination disabled">Suivant →</span>'
-                    }
-                </div>
+    ${page > 1 
+        ? `<a href="?page=${page - 1}${searchParam}" class="btn-pagination">← Précédent</a>` 
+        : '<span class="btn-pagination disabled">← Précédent</span>'
+    }
+    
+    <span class="page-info">Page ${page} / ${totalPages}</span>
+    
+    ${page < totalPages 
+        ? `<a href="?page=${page + 1}${searchParam}" class="btn-pagination">Suivant →</a>` 
+        : '<span class="btn-pagination disabled">Suivant →</span>'
+    }
+</div>
+
             </div>
             
             <script>
