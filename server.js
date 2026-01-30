@@ -25,7 +25,6 @@ async function connectDB() {
 }
 
 // Route principale - Liste des publications avec pagination
-// Route principale - Liste des publications avec pagination
 app.get('/', async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1; // Page actuelle (par défaut 1)
@@ -55,6 +54,9 @@ app.get('/', async (req, res) => {
         <body>
             <div class="container">
                 <h1>📚 Médiathèque</h1>
+                <a href="/stats" class="btn-pagination">📊 Voir les statistiques</a>
+<br><br>
+
                 <p>Total : ${totalPublications} publications | Page ${page} sur ${totalPages}</p>
                 
                 <div class="publications-list">
@@ -162,6 +164,51 @@ app.post('/retourner/:id', async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+
+// Route Statistiques
+app.get("/stats", async (req, res) => {
+    try {
+        const total = await db.collection("publications").countDocuments();
+
+        const empruntes = await db.collection("publications").countDocuments({
+            FIELD9: { $exists: true }
+        });
+
+        const disponibles = total - empruntes;
+
+        const pourcentage = total > 0
+            ? Math.round((empruntes / total) * 100)
+            : 0;
+
+        res.send(`
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <title>Statistiques</title>
+            <link rel="stylesheet" href="/style.css">
+        </head>
+        <body>
+            <div class="container">
+                <h1>📊 Statistiques de la médiathèque</h1>
+
+                <ul style="font-size:18px;">
+                    <li>Total documents : <strong>${total}</strong></li>
+                    <li>Documents empruntés : <strong>${empruntes}</strong></li>
+                    <li>Documents disponibles : <strong>${disponibles}</strong></li>
+                    <li>Pourcentage emprunté : <strong>${pourcentage}%</strong></li>
+                </ul>
+
+                <a href="/" class="btn-pagination">⬅ Retour au catalogue</a>
+            </div>
+        </body>
+        </html>
+        `);
+    } catch (error) {
+        res.status(500).send("Erreur stats : " + error.message);
+    }
+});
+
 // Démarrage
 connectDB().then(() => {
     app.listen(port, () => {
