@@ -24,10 +24,25 @@ async function connectDB() {
     }
 }
 
-// Route de test
+// Route principale - Liste des publications avec pagination
+// Route principale - Liste des publications avec pagination
 app.get('/', async (req, res) => {
     try {
-        const count = await db.collection('publications').countDocuments();
+        const page = parseInt(req.query.page) || 1; // Page actuelle (par défaut 1)
+        const limit = 20; // Nombre de publications par page
+        const skip = (page - 1) * limit; // Nombre à sauter
+        
+        // Compter le total de publications
+        const totalPublications = await db.collection('publications').countDocuments();
+        const totalPages = Math.ceil(totalPublications / limit);
+        
+        // Récupérer les publications de la page actuelle
+        const publications = await db.collection('publications')
+            .find()
+            .skip(skip)
+            .limit(limit)
+            .toArray();
+        
         const html = `
         <!DOCTYPE html>
         <html lang="fr">
@@ -39,10 +54,67 @@ app.get('/', async (req, res) => {
         </head>
         <body>
             <div class="container">
-                <h1>Médiathèque</h1>
-                <p>✅ Connexion réussie !</p>
-                <p>Nombre de publications dans la base : <strong>${count}</strong></p>
+                <h1>📚 Médiathèque</h1>
+                <p>Total : ${totalPublications} publications | Page ${page} sur ${totalPages}</p>
+                
+                <div class="publications-list">
+                    ${publications.map(pub => `
+                        <div class="document-card">
+                            <h3>${pub.title || 'Sans titre'}</h3>
+                            <p><strong>Auteur(s) :</strong> ${
+                                pub.authors && pub.authors.length > 0 
+                                    ? pub.authors.join(', ') 
+                                    : 'Inconnu'
+                            }</p>
+                            <p><strong>Type :</strong> ${pub.booktitle || 'Non spécifié'}</p>
+                            <p><strong>Année :</strong> ${pub.year || 'N/A'}</p>
+                            <p><strong>URL :</strong> ${
+                                pub.url 
+                                    ? `<a href="https://dblp.org/${pub.url}" target="_blank">Voir sur DBLP</a>` 
+                                    : 'N/A'
+                            }</p>
+                            <p><strong>Statut :</strong> 
+                                ${pub.FIELD9 ? '<span style="color: orange;">Emprunté</span>' : '<span style="color: green;">Disponible</span>'}
+                            </p>
+                            ${pub.FIELD9 
+                                ? `<button class="retour" onclick="retourner('${pub._id}')">📥 Retourner</button>`
+                                : `<button onclick="emprunter('${pub._id}')">📤 Emprunter</button>`
+                            }
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    ${page > 1 
+                        ? `<a href="?page=${page - 1}" class="btn-pagination">← Précédent</a>` 
+                        : '<span class="btn-pagination disabled">← Précédent</span>'
+                    }
+                    
+                    <span class="page-info">Page ${page} / ${totalPages}</span>
+                    
+                    ${page < totalPages 
+                        ? `<a href="?page=${page + 1}" class="btn-pagination">Suivant →</a>` 
+                        : '<span class="btn-pagination disabled">Suivant →</span>'
+                    }
+                </div>
             </div>
+            
+            <script>
+                function emprunter(id) {
+                    if (confirm('Emprunter ce document ?')) {
+                        fetch('/emprunter/' + id, { method: 'POST' })
+                            .then(() => location.reload());
+                    }
+                }
+                
+                function retourner(id) {
+                    if (confirm('Retourner ce document ?')) {
+                        fetch('/retourner/' + id, { method: 'POST' })
+                            .then(() => location.reload());
+                    }
+                }
+            </script>
         </body>
         </html>
         `;
