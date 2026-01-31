@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Catalogue de Documents</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #6f7fdc, #7a68c5);
+        }
+        .card-rounded {
+            border-radius: 1rem;
+        }
+        .status {
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body class="py-4">
+
+    <div class="container">
+        <div class="card card-rounded shadow-sm mb-4">
+            <div class="card-body text-center py-4">
+                <h1 class="fw-bold">Connexion</h1>
+            </div>
+        </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 mb-2">
+                    <div class="card card-rounded shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Connexion</h5>
+                            <form action="/connexion" method="POST">
+                                <input type="text" class="form-control mb-2"  placeholder="Username" name="username" required>
+                                <input type="password" class="form-control mb-3" placeholder="Mot de passe" name="password" required>
+                                <button class="btn btn-primary w-100">Se connecter</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+</body>
+</html>
