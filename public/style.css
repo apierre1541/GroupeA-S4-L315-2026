@@ -1,0 +1,93 @@
+* {
+       margin: 0;
+       padding: 0;
+       box-sizing: border-box;
+   }
+
+   body {
+       font-family: Arial, sans-serif;
+       background-color: #f4f4f4;
+       padding: 20px;
+   }
+
+   h1 {
+       color: #333;
+       margin-bottom: 20px;
+   }
+
+   .container {
+       max-width: 1200px;
+       margin: 0 auto;
+       background-color: white;
+       padding: 20px;
+       border-radius: 8px;
+       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+   }
+
+   .document-card {
+       border: 1px solid #ddd;
+       padding: 15px;
+       margin: 10px 0;
+       border-radius: 5px;
+       background-color: #fafafa;
+   }
+
+   button {
+       background-color: #007bff;
+       color: white;
+       border: none;
+       padding: 10px 20px;
+       border-radius: 5px;
+       cursor: pointer;
+       font-size: 14px;
+   }
+
+   button:hover {
+       background-color: #0056b3;
+   }
+
+   button.retour {
+       background-color: #28a745;
+   }
+
+   button.retour:hover {
+       background-color: #1e7e34;
+   }
+
+   /* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+    padding: 20px 0;
+}
+
+.btn-pagination {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-pagination:hover {
+    background-color: #0056b3;
+}
+
+.btn-pagination.disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.page-info {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.publications-list {
+    margin-bottom: 20px;
+}
