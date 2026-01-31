@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Catalogue de Documents</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #6f7fdc, #7a68c5);
+        }
+        .card-rounded {
+            border-radius: 1rem;
+        }
+        .status {
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body class="py-4">
+
+<div class="container">
+
+    <!-- Header -->
+    <div class="card card-rounded shadow-sm mb-4">
+        <div class="card-body text-center py-4">
+            <h1 class="fw-bold">📚 Catalogue de Documents</h1>
+            <p class="text-muted mb-0">Connexion à MongoDB Atlas</p>
+        </div>
+    </div>
+
+    <div class="card card-rounded shadow-sm mb-4">
+        <div class="card-body text-left py-4">
+            <button class="btn btn-primary">📊 Voir les Statistiques</button>
+        </div>
+    </div>
+
+    <!-- Auth -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-2">
+            <div class="card card-rounded shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Connexion</h5>
+                    <input type="email" class="form-control mb-2" placeholder="Email">
+                    <input type="password" class="form-control mb-3" placeholder="Mot de passe">
+                    <button class="btn btn-primary w-100">Se connecter</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-2">
+            <div class="card card-rounded shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Inscription</h5>
+                    <input type="text" class="form-control mb-2" placeholder="Nom">
+                    <input type="password" class="form-control mb-3" placeholder="Mot de passe">
+                    <button class="btn btn-success w-100">S'inscrire</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="card card-rounded shadow-sm mb-3">
+        <div class="card-body">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="🔍 Rechercher un titre ou auteur">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Tous les types</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Tous les statuts</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select">
+                        <option>Tri alphabétique</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-primary">📚 Charger</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="alert alert-success mb-4">
+        ✅ 9 document(s) sur 1000 (page 1 / 112)
+    </div>
+
+    <!-- Cards -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card card-rounded shadow-sm h-100">
+                <div class="card-body">
+                    <h4 class="text-primary">14.0</h4>
+                    <span class="badge bg-success status mb-2">Disponible</span>
+                    <p class="mb-1"><strong>Auteur :</strong> Echenoz, Jean</p>
+                    <p class="mb-1"><strong>Réservations :</strong> 146</p>
+                    <p class="mb-0"><strong>Rang :</strong> 95</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-rounded shadow-sm h-100">
+                <div class="card-body">
+                    <h4 class="text-primary">16 lunes</h4>
+                    <span class="badge bg-success status mb-2">Disponible</span>
+                    <p class="mb-1"><strong>Auteur :</strong> Garcia, Kami</p>
+                    <p class="mb-1"><strong>Type :</strong> Livre pour adulte</p>
+                    <p class="mb-1"><strong>Réservations :</strong> 108</p>
+                    <p class="mb-0"><strong>Rang :</strong> 186</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-rounded shadow-sm h-100">
+                <div class="card-body">
+                    <h4 class="text-primary">17 lunes</h4>
+                    <span class="badge bg-success status mb-2">Disponible</span>
+                    <p class="mb-1"><strong>Auteur :</strong> Stohl, Margaret</p>
+                    <p class="mb-1"><strong>Type :</strong> Livre jeunesse</p>
+                    <p class="mb-1"><strong>Réservations :</strong> 62</p>
+                    <p class="mb-0"><strong>Rang :</strong> 494</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card shadow-sm rounded-4 my-4">
+        <div class="card-body">
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                <button class="btn btn-outline-primary d-flex align-items-center gap-2">
+                    <span>&larr;</span>
+                    <span>Précédent</span>
+                </button>
+                <div class="fw-semibold text-primary">Page
+                    <span class="fw-bold">1</span> / <span class="fw-bold">112</span>
+                </div>
+                <button class="btn btn-outline-primary d-flex align-items-center gap-2">
+                    <span>Suivant</span>
+                    <span>&rarr;</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
