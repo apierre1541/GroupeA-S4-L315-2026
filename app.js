@@ -1,15 +1,21 @@
 const express = require("express");
 const app = express();
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require('mongoose');
+const randToken = require("rand-token");
+const nodemailer = require("nodemailer")
 //const bcrypt = require("bcrypt");
 
 const session = require("express-session");
 const passport = require("passport");
-const passportLocalMongoose = require("passport-local-mongoose");
+//const passportLocalMongoose = require("passport-local-mongoose");
+
+const User = require("./models/user")
+const Reset = require("./models/reset")
+
 app.use(session({
     secret: "mysecret",
     resave: false,
@@ -31,12 +37,10 @@ app.set("view engine", "ejs");
 
 //app.use(express.static("public"));
 
-app.use(bodyParser.urlencoded({extended:false}));
-
-const User = require("./models/user")
 
 const methodOverride = require("method-override");
 const flash = require("connect-flash");
+const reset = require("./models/reset");
 
 app.get("/", function(req, res){
     res.render("Page_accueil");
@@ -46,54 +50,99 @@ app.get("/inscription", function(req, res){
     res.render("inscription")
 });
 
-app.post("/inscription", async function(req, res){
-    try {
-        const saltRounds = 10;
-        const hash = await bcrypt.hash(req.body.password, saltRounds);
-        const newUser = await User.create({
-            username: req.body.username,
-            password: hash
-        });
-        console.log("Utilisateur créé:", newUser.username);
-        res.render("Page_accueil")
-        
-    } catch(err) {
-        console.error("Erreur lors de l'inscription:", err);
-        res.status(500).send("Erreur lors de l'inscription: " + err.message);
-    }
+app.post("/inscription", function(req, res){
+    const newUser = new User({
+        username: req.body.username
+    });
+    User.register(newUser, req.body.password, function(err,user){
+        if (err){
+            console.log(err);
+            return res.render("inscription");
+        }else{
+            passport.authenticate("local")(req, res,function(){
+                res.render("inscription");
+            });
+        }
+    });
 });
-
+    
 app.get("/connexion", function(req, res){
     res.render("connexion")
 });
 
-app.post("/connexion", async function(req, res){
+app.post("/connexion", function(req, res){
+    const user = new User({
+        username: req.body.username,
+        password: req.body.password
+    });
+    req.login(user, function(err){
+        if(err){
+            console.log(err);
+        }else{
+            passport.authenticate("local")(req, res, function(){
+                res.redirect("inscription");
+            })
+        }
+    })
+});
+
+app.get("/deconnexion", function(req, res){
+    req.logout(function(err) {
+        if (err) {
+            console.log("Erreur déconnexion:", err);
+            return res.redirect("/");
+        }
+        console.log("Déconnexion réussie");
+        res.redirect("/connexion");
+    });
+});
+
+app.get("/oublie_password", function(req, res){
+    res.render("password_oublier")
+});
+
+app.post("/oublie_password", async function(req, res){
     try {
-        console.log("Tentative de connexion avec:", req.body.username);
-        const foundUser = await User.findOne({ 
-            username: req.body.username 
+        const userFound = await User.findOne({username: req.body.username});
+        
+        if (!userFound) {
+            return res.redirect("/connexion");
+        }
+        const token = randToken.generate(16);
+        await Reset.create({
+            username: userFound.username,
+            resetPasswordToken: token,
+            resetPasswordExpires: Date.now() + 3600000
         });
-        if (!foundUser) {
-            console.log("Utilisateur non trouvé:", req.body.username);
-            return res.status(401).send("Utilisateur non trouvé");
-        }
-        const passwordMatch = await bcrypt.compare(
-            req.body.password, 
-            foundUser.password
-        );
-        if (passwordMatch) {
-            console.log("Connexion réussie pour:", foundUser.username);
-            res.render("Page_accueil");
-        } else {
-            console.log("Mot de passe incorrect pour:", foundUser.username);
-            res.status(401).send("Mot de passe incorrect");
-        }
+        
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'code36093@gmail.com',
+                pass: '1234'
+            }
+        });
+        
+        const mailOptions = {
+            from: 'code36093@gmail.com',
+            to: req.body.username,
+            subject: 'Link to reset your password',
+            text: 'Click on this link to reset your password: http://localhost:3000/renitialiser/' + token
+        };
+        
+        console.log("Le mail est prêt à être envoyé");
+        
+        await transporter.sendMail(mailOptions);
+        
+        console.log("Email envoyé avec succès");
+        res.redirect("/connexion");
         
     } catch(err) {
-        console.error("Erreur lors de la connexion:", err);
-        res.status(500).send("Erreur serveur");
+        console.log("Erreur:", err);
+        res.redirect("/connexion");
     }
 });
+
 
 app.listen(3000, function(req, res){
     console.log("tout marche bien!");
