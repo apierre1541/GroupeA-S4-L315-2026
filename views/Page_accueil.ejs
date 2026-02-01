@@ -145,9 +145,6 @@
             <div class="card card-rounded shadow-sm h-100">
                 <div class="card-body">
                     <h4 class="text-primary"><%= livre.titre %></h4>
-                      <span id="badge-<%= livre._id %>" class="badge <%= livre.FIELD9 === 'emprunté' ? 'bg-danger' : 'bg-success' %> status mb-2">
-                        <%= livre.FIELD9 === 'emprunté' ? 'Emprunté' : 'Disponible' %>
-                    </span>
                     <p class="mb-1">
                         <strong>Auteur :</strong> <%= livre.auteur %>
                     </p>
@@ -162,14 +159,17 @@
                     <p class="mb-0">
                         <strong>Rang :</strong> <%= livre.rang %>
                     </p>
-                    <div class="mt-auto pt-3 border-top">
-                        <button 
-                            id="btn-<%= livre._id %>"
-                            class="btn <%= livre.FIELD9 === 'emprunté' ? 'btn-success' : 'btn-warning' %> w-100" 
-                            onclick="toggleEmprunt('<%= livre._id %>', '<%= livre.titre %>', '<%= livre.FIELD9 === 'emprunté' %>')">
-                            <%= livre.FIELD9 === 'emprunté' ? 'Retourner' : 'Emprunter' %>
-                        </button>
-                    </div>
+                    <% if (livre.FIELD9 === 'emprunté') { %>
+                            <a href="/?action=retourner&livreId=<%= livre._id %>&q=<%= searchQuery %>&type=<%= type %>&statut=<%= statut %>&tri=<%= tri %>&page=<%= page %>" 
+                            class="btn btn-success w-100">
+                                Retourner
+                            </a>
+                        <% } else { %>
+                            <a href="/?action=emprunter&livreId=<%= livre._id %>&q=<%= searchQuery %>&type=<%= type %>&statut=<%= statut %>&tri=<%= tri %>&page=<%= page %>" 
+                            class="btn btn-warning w-100">
+                                Emprunter
+                            </a>
+                        <% } %>
                 </div>
             </div>
         </div>

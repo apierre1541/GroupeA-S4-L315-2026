@@ -53,14 +53,50 @@ const reset = require("./models/reset");
 
 app.get("/", async function(req, res){
     try {
+        // Paramètres de recherche
         const searchQuery = req.query.q || '';
         const type = req.query.type || '';
         const statut = req.query.statut || '';
         const tri = req.query.tri || 'alphabetique';
         const page = parseInt(req.query.page) || 1;
+        const action = req.query.action;
+        const livreId = req.query.livreId;
+        console.log("Paramètres:", { searchQuery, type, statut, tri, page, action, livreId });
+        if (action && livreId) {
+            try {
+                const db = mongoose.connection.db;
+                const ObjectId = require('mongodb').ObjectId;
+                const queryId = livreId.match(/^[0-9a-fA-F]{24}$/) ? new ObjectId(livreId) : livreId;
+                
+                if (action === 'emprunter') {
+                    await db.collection('Bibliotheque').updateOne(
+                        { _id: queryId },
+                        { $set: { FIELD9: 'emprunté' } }
+                    );
+                    console.log(`✅ Livre ${livreId} emprunté`);
+                } else if (action === 'retourner') {
+                    await db.collection('Bibliotheque').updateOne(
+                        { _id: queryId },
+                        { $set: { FIELD9: '' } }
+                    );
+                    console.log(`✅ Livre ${livreId} retourné`);
+                }
+                const redirectParams = new URLSearchParams({
+                    q: searchQuery,
+                    type: type,
+                    statut: statut,
+                    tri: tri,
+                    page: page
+                }).toString();
+                
+                return res.redirect(`/?${redirectParams}`);
+                
+            } catch (actionError) {
+                console.error('Erreur action:', actionError);
+            }
+        }
         const limit = 9;
         const skip = (page - 1) * limit;
-        console.log("Paramètres:", { searchQuery, type, statut, tri, page });
         let query = {};
         if (searchQuery) {
             query.$or = [
@@ -93,6 +129,7 @@ app.get("/", async function(req, res){
         const total = await mongoose.connection.db
             .collection('Bibliotheque') 
             .countDocuments(query);
+        
         console.log(`📚 ${total} documents trouvés avec les filtres`);
         const livres = await mongoose.connection.db
             .collection('Bibliotheque') 
@@ -101,6 +138,7 @@ app.get("/", async function(req, res){
             .skip(skip)
             .limit(limit)
             .toArray();
+        
         console.log(`${livres.length} livres récupérés pour la page ${page}`);
         const livresFormates = livres.map(livre => {
             const fields = livre.fields || {};
@@ -129,7 +167,6 @@ app.get("/", async function(req, res){
             tri: tri,
             user: req.user || null
         });
-        
     } catch (error) {
         console.error("Erreur:", error);
         res.render("Page_accueil", {
@@ -322,8 +359,8 @@ app.get("/stats", async (req, res) => {
         
         try {
             const db = mongoose.connection.db || mongoose.connection;
-            total = await db.collection("publications").countDocuments();
-            empruntes = await db.collection("publications").countDocuments({
+            total = await db.collection("Bibliotheque").countDocuments();
+            empruntes = await db.collection("Bibliotheque").countDocuments({
                 FIELD9: { $exists: true, $ne: '' }
             });
         } catch (dbError) {
@@ -361,57 +398,6 @@ app.get("/stats", async (req, res) => {
         });
     }
 });
-
-app.post('/emprunter/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const ObjectId = require('mongodb').ObjectId;
-        const queryId = id.match(/^[0-9a-fA-F]{24}$/) ? new ObjectId(id) : id;
-        
-        await db.collection('publications').updateOne(
-            { _id: queryId },
-            { $set: { FIELD9: 'emprunté' } }
-        );
-        
-        res.json({ 
-            success: true, 
-            message: 'Livre emprunté avec succès' 
-        });
-    } catch (error) {
-        console.error('Erreur emprunter:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: error.message 
-        });
-    }
-});
-
-app.post('/retourner/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const ObjectId = require('mongodb').ObjectId;
-        const queryId = id.match(/^[0-9a-fA-F]{24}$/) ? new ObjectId(id) : id;
-        
-        await db.collection('publications').updateOne(
-            { _id: queryId },
-            { $set: { FIELD9: '' } }
-        );
-        
-        res.json({ 
-            success: true, 
-            message: 'Livre retourné avec succès' 
-        });
-    } catch (error) {
-        console.error('Erreur retourner:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: error.message 
-        });
-    }
-});
-
-
-
 
 app.listen(3000, function(req, res){
     console.log("tout marche bien!");
