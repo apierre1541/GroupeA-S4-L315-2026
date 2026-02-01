@@ -53,27 +53,64 @@ const reset = require("./models/reset");
 
 app.get("/", async function(req, res){
     try {
-        const total = await mongoose.connection.db
-            .collection('Bibliotheque') 
-            .countDocuments();
-        console.log(`📚 Total documents dans 'Bibliotheque': ${total}`);
+        const searchQuery = req.query.q || '';
+        const type = req.query.type || '';
+        const statut = req.query.statut || '';
+        const tri = req.query.tri || 'alphabetique';
         const page = parseInt(req.query.page) || 1;
         const limit = 9;
         const skip = (page - 1) * limit;
+        console.log("Paramètres:", { searchQuery, type, statut, tri, page });
+        let query = {};
+        if (searchQuery) {
+            query.$or = [
+                { "fields.titre_avec_lien_vers_le_catalogue": { $regex: searchQuery, $options: 'i' } },
+                { "fields.auteur": { $regex: searchQuery, $options: 'i' } }
+            ];
+        }
+        if (type) {
+            query["fields.type_de_document"] = type;
+        }
+        if (statut === 'disponible') {
+            query.FIELD9 = { $ne: 'emprunté' };
+        } else if (statut === 'emprunte') {
+            query.FIELD9 = 'emprunté';
+        }
+        let sortOption = {};
+        switch(tri) {
+            case 'auteur':
+                sortOption = { "fields.auteur": 1 };
+                break;
+            case 'reservations':
+                sortOption = { "fields.nombre_de_reservations": -1 };
+                break;
+            case 'rang':
+                sortOption = { "fields.rang": 1 };
+                break;
+            default:
+                sortOption = { "fields.titre_avec_lien_vers_le_catalogue": 1 };
+        }
+        const total = await mongoose.connection.db
+            .collection('Bibliotheque') 
+            .countDocuments(query);
+        console.log(`📚 ${total} documents trouvés avec les filtres`);
         const livres = await mongoose.connection.db
             .collection('Bibliotheque') 
-            .find({})
+            .find(query)
+            .sort(sortOption)
             .skip(skip)
             .limit(limit)
             .toArray();
-        console.log(`${livres.length} livres récupérés`);
+        console.log(`${livres.length} livres récupérés pour la page ${page}`);
         const livresFormates = livres.map(livre => {
             const fields = livre.fields || {};
             return {
+                _id: livre._id, 
                 titre: fields.titre_avec_lien_vers_le_catalogue || 'Titre inconnu',
                 auteur: fields.auteur || 'Auteur non spécifié',
                 type: fields.type_de_document || 'Non spécifié',
-                statut: 'Disponible',
+                statut: livre.FIELD9 === 'emprunté' ? 'Emprunté' : 'Disponible',
+                FIELD9: livre.FIELD9 || '',
                 reservations: fields.nombre_de_reservations || 0,
                 rang: fields.rang || 0
             };
@@ -86,12 +123,13 @@ app.get("/", async function(req, res){
             page: page,
             pages: pages,
             limit: limit,
-            searchQuery: "",
-            type: "",
-            statut: "",
-            tri: "alphabetique",
+            searchQuery: searchQuery,
+            type: type,
+            statut: statut,
+            tri: tri,
             user: req.user || null
         });
+        
     } catch (error) {
         console.error("Erreur:", error);
         res.render("Page_accueil", {
@@ -277,7 +315,6 @@ function isLoggedIn(req, res,next){
     }
 }
 
-// UNE SEULE route /stats
 app.get("/stats", async (req, res) => {
     try {
         let total = 0;
@@ -322,52 +359,6 @@ app.get("/stats", async (req, res) => {
             pourcentage: 0,
             pourcentageDisponibles: 100
         });
-    }
-});
-
-app.get("/rechercher", async function(req, res) {
-    try {
-        const searchQuery = req.query.q || '';
-        const type = req.query.type || '';
-        const statut = req.query.statut || '';
-        const tri = req.query.tri || 'alphabetique';
-        console.log("Recherche avec:", { searchQuery, type, statut, tri });
-        let query = {};
-        if (searchQuery) {
-            query.$or = [
-                { "fields.titre_avec_lien_vers_le_catalogue": { $regex: searchQuery, $options: 'i' } },
-                { "fields.auteur": { $regex: searchQuery, $options: 'i' } }
-            ];
-        }
-        if (type) {
-            query.type = type;
-        }
-        if (statut) {
-            query.statut = statut;
-        }
-        let sortOption = {};
-        switch(tri) {
-            case 'reservation':
-                sortOption = { "fields.auteur": 1 };
-                break;
-            default: 
-                sortOption = { "fields.titre_avec_lien_vers_le_catalogue": 1 };
-        }
-        const livres = await Livre.find(query)
-            .sort(sortOption)
-            .limit(50);
-        console.log(`${livres.length} résultat(s) trouvé(s)`);
-        res.render("recherche", {
-            livres: livres,
-            searchQuery: searchQuery,
-            type: type,
-            statut: statut,
-            tri: tri,
-            count: livres.length
-        });
-    } catch (error) {
-        console.error("Erreur recherche:", error);
-        res.status(500).send("Erreur lors de la recherche");
     }
 });
 
