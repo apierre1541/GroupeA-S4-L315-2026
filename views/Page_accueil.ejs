@@ -131,7 +131,7 @@
         <p>La bibliothèque est vide pour le moment.</p>
     </div>
     <% } %>
-    <% if (pages > 1) { %>
+    <% if (typeof pages !== 'undefined' && pages > 1) { %>
     <div class="card shadow-sm rounded-4 my-4">
         <div class="card-body">
             <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">

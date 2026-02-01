@@ -65,10 +65,11 @@ app.get("/", async function(req, res){
             .skip(skip)
             .limit(limit)
             .toArray();
+        const pages = Math.ceil(total / limit);
         const livresFormates = livres.map(livre => ({
-            titre: livre.fields?.titre_avec_lien_vers_le_catalogue || livre.titre || 'Titre inconnu',
-            auteur: livre.fields?.auteur || livre.auteur || 'Auteur inconnu',
-            type: livre.fields?.type_de_document || livre.type || 'Non spécifié',
+            titre: livre.fields?.titre_avec_lien_vers_le_catalogue || 'Titre inconnu',
+            auteur: livre.fields?.auteur || 'Auteur non spécifié',
+            type: livre.fields?.type_de_document || 'Non spécifié',
             statut: 'Disponible', 
             reservations: livre.fields?.nombre_de_reservations || 0,
             rang: livre.fields?.rang || 0
@@ -78,7 +79,7 @@ app.get("/", async function(req, res){
             count: livresFormates.length,
             total: total,
             page: page,
-            pages: Math.ceil(total / limit),
+            pages: pages, 
             limit: limit,
             searchQuery: "",
             type: "",
@@ -91,6 +92,10 @@ app.get("/", async function(req, res){
         res.render("Page_accueil", {
             livres: [],
             count: 0,
+            total: 0,
+            page: 1,
+            pages: 1, 
+            limit: 9,
             searchQuery: "",
             type: "",
             statut: "",
