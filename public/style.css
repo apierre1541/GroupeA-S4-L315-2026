@@ -95,3 +95,11 @@ button.retour:hover {
 .btn-pagination {
     margin: 0 10px;
 }
+
+.btn-clear-filters {
+    background-color: #dc3545;
+}
+
+.btn-clear-filters:hover {
+    background-color: #c82333;
+}

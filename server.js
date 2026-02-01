@@ -39,6 +39,9 @@ const q = req.query.q;
 // Récupération du statut (emprunté/disponible)
 const status = req.query.status;
 
+// Récupération du type 
+const type = req.query.type;
+
 
 // Filtre MongoDB
 let filter = {};
@@ -59,6 +62,16 @@ if (status === "emprunte") {
     filter.FIELD9 = { $exists: true };
 }
 
+// Filtre par type
+if (type && type.trim() !== "") {
+    filter.booktitle = type;
+}
+
+const types = await db.collection("publications").distinct("booktitle");
+// Optionnel: garder des valeurs non vides seulement
+const cleanTypes = types.filter(t => t && String(t).trim() !== "").sort();
+
+
 // Compter total avec filtre
 const totalPublications = await db.collection("publications").countDocuments(filter);
 const totalPages = Math.ceil(totalPublications / limit);
@@ -70,7 +83,10 @@ const publications = await db.collection("publications")
     .limit(limit)
     .toArray();
 
-        const searchParam = q ? `&q=${encodeURIComponent(q)}` : "";
+        let searchParam = "";
+        if (q) searchParam += `&q=${encodeURIComponent(q)}`;
+        if (type) searchParam += `&type=${encodeURIComponent(type)}`;
+
 
         const html = `
         <!DOCTYPE html>
@@ -95,6 +111,15 @@ const publications = await db.collection("publications")
         placeholder="Rechercher un titre ou un auteur..."
         value="${req.query.q || ""}"
     >
+        <select name="type">
+        <option value="">Tous les types</option>
+        ${cleanTypes.map(t => `
+            <option value="${String(t).replace(/"/g, '&quot;')}" ${type === t ? "selected" : ""}>
+                ${t}
+            </option>
+        `).join("")}
+    </select>
+
     <button type="submit">🔍 Rechercher</button>
 </form>
 <br>
@@ -109,8 +134,8 @@ const publications = await db.collection("publications")
         📕 Empruntés
     </a>
 
-    <a href="/" class="btn-pagination">
-         Tous
+    <a href="/" class="btn-pagination btn-clear-filters">
+        🗑️ Supprimer les filtres
     </a>
 </div>
 
