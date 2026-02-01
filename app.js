@@ -53,33 +53,38 @@ const reset = require("./models/reset");
 
 app.get("/", async function(req, res){
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = 9; 
-        const skip = (page - 1) * limit;
         const total = await mongoose.connection.db
-            .collection('bibliotheque')
+            .collection('Bibliotheque') 
             .countDocuments();
+        console.log(`📚 Total documents dans 'Bibliotheque': ${total}`);
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
         const livres = await mongoose.connection.db
-            .collection('bibliotheque')
+            .collection('Bibliotheque') 
             .find({})
             .skip(skip)
             .limit(limit)
             .toArray();
+        console.log(`${livres.length} livres récupérés`);
+        const livresFormates = livres.map(livre => {
+            const fields = livre.fields || {};
+            return {
+                titre: fields.titre_avec_lien_vers_le_catalogue || 'Titre inconnu',
+                auteur: fields.auteur || 'Auteur non spécifié',
+                type: fields.type_de_document || 'Non spécifié',
+                statut: 'Disponible',
+                reservations: fields.nombre_de_reservations || 0,
+                rang: fields.rang || 0
+            };
+        });
         const pages = Math.ceil(total / limit);
-        const livresFormates = livres.map(livre => ({
-            titre: livre.fields?.titre_avec_lien_vers_le_catalogue || 'Titre inconnu',
-            auteur: livre.fields?.auteur || 'Auteur non spécifié',
-            type: livre.fields?.type_de_document || 'Non spécifié',
-            statut: 'Disponible', 
-            reservations: livre.fields?.nombre_de_reservations || 0,
-            rang: livre.fields?.rang || 0
-        }));
         res.render("Page_accueil", {
             livres: livresFormates,
             count: livresFormates.length,
             total: total,
             page: page,
-            pages: pages, 
+            pages: pages,
             limit: limit,
             searchQuery: "",
             type: "",
@@ -94,7 +99,7 @@ app.get("/", async function(req, res){
             count: 0,
             total: 0,
             page: 1,
-            pages: 1, 
+            pages: 1,
             limit: 9,
             searchQuery: "",
             type: "",
