@@ -103,8 +103,8 @@
             <div class="card card-rounded shadow-sm h-100">
                 <div class="card-body">
                     <h4 class="text-primary"><%= livre.titre %></h4>
-                    <span class="badge bg-success status mb-2">
-                        <%= livre.statut || 'Disponible' %>
+                      <span id="badge-<%= livre._id %>" class="badge <%= livre.FIELD9 === 'emprunté' ? 'bg-danger' : 'bg-success' %> status mb-2">
+                        <%= livre.FIELD9 === 'emprunté' ? 'Emprunté' : 'Disponible' %>
                     </span>
                     <p class="mb-1">
                         <strong>Auteur :</strong> <%= livre.auteur %>
@@ -120,6 +120,14 @@
                     <p class="mb-0">
                         <strong>Rang :</strong> <%= livre.rang %>
                     </p>
+                    <div class="mt-auto pt-3 border-top">
+                        <button 
+                            id="btn-<%= livre._id %>"
+                            class="btn <%= livre.FIELD9 === 'emprunté' ? 'btn-success' : 'btn-warning' %> w-100" 
+                            onclick="toggleEmprunt('<%= livre._id %>', '<%= livre.titre %>', '<%= livre.FIELD9 === 'emprunté' %>')">
+                            <%= livre.FIELD9 === 'emprunté' ? 'Retourner' : 'Emprunter' %>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

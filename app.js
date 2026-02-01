@@ -323,6 +323,54 @@ app.get("/rechercher", async function(req, res) {
     }
 });
 
+app.post('/emprunter/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const ObjectId = require('mongodb').ObjectId;
+        const queryId = id.match(/^[0-9a-fA-F]{24}$/) ? new ObjectId(id) : id;
+        
+        await db.collection('publications').updateOne(
+            { _id: queryId },
+            { $set: { FIELD9: 'emprunté' } }
+        );
+        
+        res.json({ 
+            success: true, 
+            message: 'Livre emprunté avec succès' 
+        });
+    } catch (error) {
+        console.error('Erreur emprunter:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
+    }
+});
+
+app.post('/retourner/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const ObjectId = require('mongodb').ObjectId;
+        const queryId = id.match(/^[0-9a-fA-F]{24}$/) ? new ObjectId(id) : id;
+        
+        await db.collection('publications').updateOne(
+            { _id: queryId },
+            { $set: { FIELD9: '' } }
+        );
+        
+        res.json({ 
+            success: true, 
+            message: 'Livre retourné avec succès' 
+        });
+    } catch (error) {
+        console.error('Erreur retourner:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
+    }
+});
+
 app.listen(3000, function(req, res){
     console.log("tout marche bien!");
 })
