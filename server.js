@@ -36,17 +36,27 @@ app.get('/', async (req, res) => {
         // Récupération du texte recherché
 const q = req.query.q;
 
+// Récupération du statut (emprunté/disponible)
+const status = req.query.status;
+
+
 // Filtre MongoDB
 let filter = {};
 
 if (q && q.trim() !== "") {
-    filter = {
-        $or: [
-            { title: { $regex: q, $options: "i" } },
-            { authors: { $regex: q, $options: "i" } },
-            { year: { $regex: q, $options: "i" } }
-        ]
-    };
+    filter.$or = [
+        { title: { $regex: q, $options: "i" } },
+        { authors: { $regex: q, $options: "i" } },
+        { year: { $regex: q, $options: "i" } }
+    ];
+}
+
+if (status === "disponible") {
+    filter.FIELD9 = { $exists: false };
+}
+
+if (status === "emprunte") {
+    filter.FIELD9 = { $exists: true };
 }
 
 // Compter total avec filtre
@@ -87,6 +97,23 @@ const publications = await db.collection("publications")
     >
     <button type="submit">🔍 Rechercher</button>
 </form>
+<br>
+<div class="status-filters">
+    <a href="/?status=disponible${q ? `&q=${encodeURIComponent(q)}` : ''}" 
+       class="btn-pagination">
+        ✅ Disponibles
+    </a>
+
+    <a href="/?status=emprunte${q ? `&q=${encodeURIComponent(q)}` : ''}" 
+       class="btn-pagination">
+        📕 Empruntés
+    </a>
+
+    <a href="/" class="btn-pagination">
+         Tous
+    </a>
+</div>
+
 <br>
 
                 <div class="publications-list">
