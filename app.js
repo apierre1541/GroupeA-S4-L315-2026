@@ -40,6 +40,15 @@ app.set("view engine", "ejs");
 
 const methodOverride = require("method-override");
 const flash = require("connect-flash");
+app.use(flash());
+app.use(function(req,res,next){
+    res.locals.currentUser = req.user;
+    res.locals.error = req.flash("error");
+    res.locals.success = req.flash("success")
+    next();
+})
+
+
 const reset = require("./models/reset");
 
 app.get("/", function(req, res){
@@ -92,7 +101,7 @@ app.get("/deconnexion", function(req, res){
             console.log("Erreur déconnexion:", err);
             return res.redirect("/");
         }
-        console.log("Déconnexion réussie");
+        req.flash("success","Tu es maintenant déconnecter");
         res.redirect("/connexion");
     });
 });
