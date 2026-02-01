@@ -51,14 +51,53 @@ app.use(function(req,res,next){
 
 const reset = require("./models/reset");
 
-app.get("/", function(req, res){
-    res.render("Page_accueil", {
-        searchQuery: "",
-        type: "",
-        statut: "",
-        tri: "alphabetique",
-        user: req.user || null
-    });
+app.get("/", async function(req, res){
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9; 
+        const skip = (page - 1) * limit;
+        const total = await mongoose.connection.db
+            .collection('bibliotheque')
+            .countDocuments();
+        const livres = await mongoose.connection.db
+            .collection('bibliotheque')
+            .find({})
+            .skip(skip)
+            .limit(limit)
+            .toArray();
+        const livresFormates = livres.map(livre => ({
+            titre: livre.fields?.titre_avec_lien_vers_le_catalogue || livre.titre || 'Titre inconnu',
+            auteur: livre.fields?.auteur || livre.auteur || 'Auteur inconnu',
+            type: livre.fields?.type_de_document || livre.type || 'Non spécifié',
+            statut: 'Disponible', 
+            reservations: livre.fields?.nombre_de_reservation || 0,
+            rang: livre.fields?.rang || 0
+        }));
+        res.render("Page_accueil", {
+            livres: livresFormates,
+            count: livresFormates.length,
+            total: total,
+            page: page,
+            pages: Math.ceil(total / limit),
+            limit: limit,
+            searchQuery: "",
+            type: "",
+            statut: "",
+            tri: "alphabetique",
+            user: req.user || null
+        });
+    } catch (error) {
+        console.error("Erreur:", error);
+        res.render("Page_accueil", {
+            livres: [],
+            count: 0,
+            searchQuery: "",
+            type: "",
+            statut: "",
+            tri: "alphabetique",
+            user: req.user || null
+        });
+    }
 });
 
 app.get("/inscription", function(req, res){

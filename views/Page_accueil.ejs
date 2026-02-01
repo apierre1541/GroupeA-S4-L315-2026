@@ -96,65 +96,80 @@
         ✅ 9 document(s) sur 1000 (page 1 / 112)
     </div>
 
-    <!-- Cards -->
+    <!-- Cards dynamiques -->
     <div class="row g-4">
-        <div class="col-md-4">
+        <% livres.forEach(livre => { %>
+        <div class="col-md-4 mb-4">
             <div class="card card-rounded shadow-sm h-100">
                 <div class="card-body">
-                    <h4 class="text-primary">14.0</h4>
-                    <span class="badge bg-success status mb-2">Disponible</span>
-                    <p class="mb-1"><strong>Auteur :</strong> Echenoz, Jean</p>
-                    <p class="mb-1"><strong>Réservations :</strong> 146</p>
-                    <p class="mb-0"><strong>Rang :</strong> 95</p>
+                    <h4 class="text-primary"><%= livre.titre %></h4>
+                    <span class="badge bg-success status mb-2">
+                        <%= livre.statut || 'Disponible' %>
+                    </span>
+                    <p class="mb-1">
+                        <strong>Auteur :</strong> <%= livre.auteur %>
+                    </p>
+                    <% if (livre.type && livre.type !== 'Non spécifié') { %>
+                    <p class="mb-1">
+                        <strong>Type :</strong> <%= livre.type %>
+                    </p>
+                    <% } %>
+                    <p class="mb-1">
+                        <strong>Réservations :</strong> <%= livre.reservations %>
+                    </p>
+                    <p class="mb-0">
+                        <strong>Rang :</strong> <%= livre.rang %>
+                    </p>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card card-rounded shadow-sm h-100">
-                <div class="card-body">
-                    <h4 class="text-primary">16 lunes</h4>
-                    <span class="badge bg-success status mb-2">Disponible</span>
-                    <p class="mb-1"><strong>Auteur :</strong> Garcia, Kami</p>
-                    <p class="mb-1"><strong>Type :</strong> Livre pour adulte</p>
-                    <p class="mb-1"><strong>Réservations :</strong> 108</p>
-                    <p class="mb-0"><strong>Rang :</strong> 186</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card card-rounded shadow-sm h-100">
-                <div class="card-body">
-                    <h4 class="text-primary">17 lunes</h4>
-                    <span class="badge bg-success status mb-2">Disponible</span>
-                    <p class="mb-1"><strong>Auteur :</strong> Stohl, Margaret</p>
-                    <p class="mb-1"><strong>Type :</strong> Livre jeunesse</p>
-                    <p class="mb-1"><strong>Réservations :</strong> 62</p>
-                    <p class="mb-0"><strong>Rang :</strong> 494</p>
-                </div>
-            </div>
-        </div>
+        <% }); %>
     </div>
-
-    <!-- Pagination -->
+    <% if (livres.length === 0) { %>
+    <div class="alert alert-info">
+        <h5>Aucun livre dans la bibliothèque</h5>
+        <p>La bibliothèque est vide pour le moment.</p>
+    </div>
+    <% } %>
+    <% if (pages > 1) { %>
     <div class="card shadow-sm rounded-4 my-4">
         <div class="card-body">
             <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
-                <button class="btn btn-outline-primary d-flex align-items-center gap-2">
+                <% if (page > 1) { %>
+                <a href="/?page=<%= page - 1 %>" 
+                class="btn btn-outline-primary d-flex align-items-center gap-2">
+                    <span>&larr;</span>
+                    <span>Précédent</span>
+                </a>
+                <% } else { %>
+                <button class="btn btn-outline-primary d-flex align-items-center gap-2" disabled>
                     <span>&larr;</span>
                     <span>Précédent</span>
                 </button>
-                <div class="fw-semibold text-primary">Page
-                    <span class="fw-bold">1</span> / <span class="fw-bold">112</span>
+                <% } %>
+                <div class="fw-semibold text-primary">
+                    Page <span class="fw-bold"><%= page %></span> / <span class="fw-bold"><%= pages %></span>
+                    <small class="text-muted d-block text-center mt-1">
+                        (<%= total %> livres au total)
+                    </small>
                 </div>
-                <button class="btn btn-outline-primary d-flex align-items-center gap-2">
+                <% if (page < pages) { %>
+                <a href="/?page=<%= page + 1 %>" 
+                class="btn btn-outline-primary d-flex align-items-center gap-2">
+                    <span>Suivant</span>
+                    <span>&rarr;</span>
+                </a>
+                <% } else { %>
+                <button class="btn btn-outline-primary d-flex align-items-center gap-2" disabled>
                     <span>Suivant</span>
                     <span>&rarr;</span>
                 </button>
+                <% } %>
             </div>
         </div>
     </div>
+    <% } %>
+  
 </div>
 </body>
 </html>
