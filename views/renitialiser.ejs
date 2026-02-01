@@ -33,7 +33,7 @@
                     <div class="card card-rounded shadow-sm h-100">
                         <div class="card-body">
                             <h5 class="card-title">Connexion</h5>
-                            <form action="/connexion" method="POST">
+                            <form action="/renitialiser" <%= token %> method="POST">
                                 <input type="password" class="form-control mb-3" placeholder="Mot de passe" name="password" required autocomplete="off">
                                 <input type="password" class="form-control mb-3" placeholder="Mot de passe2" name="password2" required autocomplete="off">
                                 <button class="btn btn-primary w-100">Mettre à jour</button>

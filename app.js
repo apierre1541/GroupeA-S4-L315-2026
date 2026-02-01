@@ -143,6 +143,68 @@ app.post("/oublie_password", async function(req, res){
     }
 });
 
+app.get("/renitialiser/:token", async (req, res) => {
+    try {
+        const resetObj = await Reset.findOne({
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+        
+        if (!resetObj) {
+            console.log("Token invalide/expiré");
+            return res.redirect('/connexion');
+        }
+        res.render('renitialiser', { token: req.params.token });
+    } catch(err) {
+        console.error(err);
+        res.redirect('/connexion');
+    }
+});
+
+app.post("/renitialiser/:token", async function(req, res) {
+    try {
+        const resetObj = await Reset.findOne({
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+        if (!resetObj) {
+            console.log("Token expiré ou invalide");
+            return res.redirect('/connexion');
+        }
+        if (req.body.password !== req.body.password2) {
+            console.log("Mots de passe ne correspondent pas");
+            return res.render('renitialiser', {
+                token: req.params.token,
+                error: "Les mots de passe ne correspondent pas"
+            });
+        }
+        const user = await User.findOne({ username: resetObj.username });
+        if (!user) {
+            console.log("Utilisateur non trouvé");
+            return res.redirect('/connexion');
+        }
+        await new Promise((resolve, reject) => {
+            user.setPassword(req.body.password, function(err) {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+        await user.save();
+        await Reset.findOneAndUpdate(
+            { resetPasswordToken: req.params.token },
+            { 
+                resetPasswordToken: null,
+                resetPasswordExpires: null 
+            }
+        );
+        console.log("Mot de passe changé pour:", user.username);
+        res.redirect("/connexion");
+    } catch(err) {
+        console.error("Erreur:", err);
+        res.redirect('/connexion');
+    }
+});
+
 
 app.listen(3000, function(req, res){
     console.log("tout marche bien!");
