@@ -42,6 +42,8 @@ const status = req.query.status;
 // Récupération du type 
 const type = req.query.type;
 
+// Récupération du tri
+const sort = req.query.sort;
 
 // Filtre MongoDB
 let filter = {};
@@ -76,9 +78,21 @@ const cleanTypes = types.filter(t => t && String(t).trim() !== "").sort();
 const totalPublications = await db.collection("publications").countDocuments(filter);
 const totalPages = Math.ceil(totalPublications / limit);
 
+let sortOption = {};
+
+// Tri alphabétique par titre
+if (sort === "az") {
+    sortOption = { title: 1 };
+}
+
+if (sort === "za") {
+    sortOption = { title: -1 };
+}
+
 // Récupérer publications filtrées
 const publications = await db.collection("publications")
     .find(filter)
+    .sort(sortOption)
     .skip(skip)
     .limit(limit)
     .toArray();
@@ -86,7 +100,7 @@ const publications = await db.collection("publications")
         let searchParam = "";
         if (q) searchParam += `&q=${encodeURIComponent(q)}`;
         if (type) searchParam += `&type=${encodeURIComponent(type)}`;
-
+        if (sort) searchParam += `&sort=${encodeURIComponent(sort)}`;
 
         const html = `
         <!DOCTYPE html>
@@ -119,7 +133,12 @@ const publications = await db.collection("publications")
             </option>
         `).join("")}
     </select>
-
+    
+    <select name="sort">
+        <option value="">Sans tri</option>
+        <option value="az" ${sort === "az" ? "selected" : ""}>A → Z</option>
+        <option value="za" ${sort === "za" ? "selected" : ""}>Z → A</option>
+    </select>
     <button type="submit">🔍 Rechercher</button>
 </form>
 <br>
