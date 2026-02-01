@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques de la médiathèque</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body class="d-flex flex-column h-100 bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="bi bi-bar-chart-fill me-2"></i>
+                <span class="fw-bold">Statistiques</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-book me-1"></i>Catalogue
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/stats">
+                            <i class="bi bi-graph-up me-1"></i>Statistiques
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <main class="flex-grow-1 py-4">
+        <div class="container">
+            <!-- En-tête -->
+            <div class="row align-items-center mb-4">
+                <div class="col-md-8">
+                    <h1 class="display-5 text-primary fw-bold">
+                        <i class="bi bi-bar-chart-fill me-2"></i>
+                        Statistiques de la médiathèque
+                    </h1>
+                    <p class="lead text-muted mb-0">
+                        Vue d'ensemble des activités de la médiathèque
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="/" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Retour au catalogue
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cartes de statistiques -->
+            <div class="row g-4 mb-4">
+                <!-- Total documents -->
+                <div class="col-md-3">
+                    <div class="card border-primary shadow-sm h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-journal-text display-4 text-primary"></i>
+                            </div>
+                            <h2 class="display-6 fw-bold text-primary">
+                                <% if (typeof total !== 'undefined') { %>
+                                    <%= total %>
+                                <% } else { %>
+                                    <span class="text-danger">ERREUR</span>
+                                <% } %>
+                            </h2>
+                            <p class="card-text text-muted">Total documents</p>
+                            <% if (typeof total === 'undefined') { %>
+                                <div class="alert alert-warning mt-2 p-2">
+                                    <small>Variable 'total' non définie</small>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents empruntés -->
+                <div class="col-md-3">
+                    <div class="card border-danger shadow-sm h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-hand-index-thumb display-4 text-danger"></i>
+                            </div>
+                            <h2 class="display-6 fw-bold text-danger">
+                                <% if (typeof empruntes !== 'undefined' && empruntes !== null) { %>
+                                    <%= empruntes %>
+                                <% } else { %>
+                                    <span class="text-danger">ERREUR</span>
+                                <% } %>
+                            </h2>
+                            <p class="card-text text-muted">Documents empruntés</p>
+                            <% if (typeof empruntes === 'undefined' || empruntes === null) { %>
+                                <div class="alert alert-warning mt-2 p-2">
+                                    <small>Variable 'empruntes' non définie</small>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents disponibles -->
+                <div class="col-md-3">
+                    <div class="card border-success shadow-sm h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-check-circle display-4 text-success"></i>
+                            </div>
+                            <h2 class="display-6 fw-bold text-success">
+                                <% if (typeof disponibles !== 'undefined' && disponibles !== null) { %>
+                                    <%= disponibles %>
+                                <% } else { %>
+                                    <span class="text-danger">ERREUR</span>
+                                <% } %>
+                            </h2>
+                            <p class="card-text text-muted">Documents disponibles</p>
+                            <% if (typeof disponibles === 'undefined' || disponibles === null) { %>
+                                <div class="alert alert-warning mt-2 p-2">
+                                    <small>Variable 'disponibles' non définie</small>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pourcentage d'emprunt -->
+                <div class="col-md-3">
+                    <div class="card border-info shadow-sm h-100">
+                        <div class="card-body text-center py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-percent display-4 text-info"></i>
+                            </div>
+                            <h2 class="display-6 fw-bold text-info">
+                                <% if (typeof pourcentage !== 'undefined' && pourcentage !== null) { %>
+                                    <%= pourcentage %>%
+                                <% } else { %>
+                                    <span class="text-danger">ERREUR</span>
+                                <% } %>
+                            </h2>
+                            <p class="card-text text-muted">Taux d'emprunt</p>
+                            <% if (typeof pourcentage === 'undefined' || pourcentage === null) { %>
+                                <div class="alert alert-warning mt-2 p-2">
+                                    <small>Variable 'pourcentage' non définie</small>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Barre de progression -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom-0">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-speedometer2 me-2"></i>
+                        Distribution des documents
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-success">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Disponibles 
+                                <% if (typeof pourcentageDisponibles !== 'undefined' && pourcentageDisponibles !== null) { %>
+                                    (<%= pourcentageDisponibles %>%)
+                                <% } else { %>
+                                    <span class="text-danger">(ERREUR)</span>
+                                <% } %>
+                            </span>
+                            <span class="text-danger">
+                                <i class="bi bi-hand-index-thumb me-1"></i>
+                                Empruntés 
+                                <% if (typeof pourcentage !== 'undefined' && pourcentage !== null) { %>
+                                    (<%= pourcentage %>%)
+                                <% } else { %>
+                                    <span class="text-danger">(ERREUR)</span>
+                                <% } %>
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 30px;">
+                            <div class="progress-bar bg-success" 
+                                role="progressbar" 
+                                style="width: <%= typeof pourcentageDisponibles !== 'undefined' && pourcentageDisponibles !== null ? pourcentageDisponibles + '%' : '0%' %>"
+                                aria-valuenow="<%= typeof pourcentageDisponibles !== 'undefined' && pourcentageDisponibles !== null ? pourcentageDisponibles : 0 %>" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                                <%= typeof pourcentageDisponibles !== 'undefined' && pourcentageDisponibles !== null ? pourcentageDisponibles + '%' : 'ERR' %>
+                            </div>
+                            <div class="progress-bar bg-danger" 
+                                role="progressbar" 
+                                style="width: <%= typeof pourcentage !== 'undefined' && pourcentage !== null ? pourcentage + '%' : '0%' %>"
+                                aria-valuenow="<%= typeof pourcentage !== 'undefined' && pourcentage !== null ? pourcentage : 0 %>" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                                <%= typeof pourcentage !== 'undefined' && pourcentage !== null ? pourcentage + '%' : 'ERR' %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message d'erreur si variables non définies -->
+                    <% if (typeof pourcentageDisponibles === 'undefined' || typeof pourcentage === 'undefined') { %>
+                    <div class="alert alert-danger mt-3">
+                        <h6><i class="bi bi-exclamation-triangle me-2"></i>Erreur de données</h6>
+                        <small>
+                            <ul class="mb-0">
+                                <li>pourcentageDisponibles: <%= typeof pourcentageDisponibles %></li>
+                                <li>pourcentage: <%= typeof pourcentage %></li>
+                            </ul>
+                        </small>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+                    
+                    <!-- Message contextuel -->
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Ces statistiques sont mises à jour en temps réel
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau détaillé -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-table me-2"></i>
+                        Récapitulatif détaillé
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" class="w-50">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Catégorie
+                                    </th>
+                                    <th scope="col" class="text-center">
+                                        <i class="bi bi-hash me-2"></i>
+                                        Nombre
+                                    </th>
+                                    <th scope="col" class="text-center">
+                                        <i class="bi bi-percent me-2"></i>
+                                        Pourcentage
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span class="d-flex align-items-center">
+                                            <i class="bi bi-journal-text text-primary me-3"></i>
+                                            Total des documents
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary rounded-pill fs-6 px-3 py-2">
+                                            <% if (typeof total !== 'undefined' && total !== null) { %>
+                                                <%= total %>
+                                            <% } else { %>
+                                                ERR
+                                            <% } %>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="fw-bold">100%</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="d-flex align-items-center">
+                                            <i class="bi bi-hand-index-thumb text-danger me-3"></i>
+                                            Documents empruntés
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-danger rounded-pill fs-6 px-3 py-2">
+                                            <% if (typeof empruntes !== 'undefined' && empruntes !== null) { %>
+                                                <%= empruntes %>
+                                            <% } else { %>
+                                                ERR
+                                            <% } %>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="fw-bold <%= typeof pourcentage !== 'undefined' && pourcentage !== null ? 'text-danger' : 'text-danger' %>">
+                                            <% if (typeof pourcentage !== 'undefined' && pourcentage !== null) { %>
+                                                <%= pourcentage %>%
+                                            <% } else { %>
+                                                ERR
+                                            <% } %>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="d-flex align-items-center">
+                                            <i class="bi bi-check-circle text-success me-3"></i>
+                                            Documents disponibles
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success rounded-pill fs-6 px-3 py-2">
+                                            <% if (typeof disponibles !== 'undefined' && disponibles !== null) { %>
+                                                <%= disponibles %>
+                                            <% } else { %>
+                                                ERR
+                                            <% } %>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="fw-bold <%= typeof pourcentageDisponibles !== 'undefined' && pourcentageDisponibles !== null ? 'text-success' : 'text-danger' %>">
+                                            <% if (typeof pourcentageDisponibles !== 'undefined' && pourcentageDisponibles !== null) { %>
+                                                <%= pourcentageDisponibles %>%
+                                            <% } else { %>
+                                                ERR
+                                            <% } %>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% 
+                    const missingVars = [];
+                    if (typeof total === 'undefined' || total === null) missingVars.push('total');
+                    if (typeof empruntes === 'undefined' || empruntes === null) missingVars.push('empruntes');
+                    if (typeof disponibles === 'undefined' || disponibles === null) missingVars.push('disponibles');
+                    if (typeof pourcentage === 'undefined' || pourcentage === null) missingVars.push('pourcentage');
+                    if (typeof pourcentageDisponibles === 'undefined' || pourcentageDisponibles === null) missingVars.push('pourcentageDisponibles');
+                    %>
+                    <% if (missingVars.length > 0) { %>
+                    <div class="alert alert-warning mt-3">
+                        <h6><i class="bi bi-exclamation-triangle me-2"></i>Variables manquantes</h6>
+                        <p class="mb-1">Les variables suivantes ne sont pas définies :</p>
+                        <ul class="mb-0">
+                            <% missingVars.forEach(variable => { %>
+                                <li><code><%= variable %></code> : <%= eval('typeof ' + variable) %></li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                        <a href="/" class="btn btn-primary btn-lg px-4">
+                            <i class="bi bi-book me-2"></i>
+                            Voir le catalogue
+                        </a>
+                        <button onclick="window.print()" class="btn btn-outline-secondary btn-lg px-4">
+                            <i class="bi bi-printer me-2"></i>
+                            Imprimer
+                        </button>
+                        <button onclick="location.reload()" class="btn btn-outline-info btn-lg px-4">
+                            <i class="bi bi-arrow-clockwise me-2"></i>
+                            Actualiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations de génération -->
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-calendar-event me-2"></i>
+                        Statistiques générées le 
+                        <strong><%= new Date().toLocaleDateString('fr-FR') %></strong>
+                        à 
+                        <strong><%= new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) %></strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h6 class="mb-0">
+                        <i class="bi bi-library me-2"></i>
+                        Médiathèque - Système de gestion
+                    </h6>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small>
+                        © <%= new Date().getFullYear() %> - Tous droits réservés
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

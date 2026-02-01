@@ -277,6 +277,54 @@ function isLoggedIn(req, res,next){
     }
 }
 
+// UNE SEULE route /stats
+app.get("/stats", async (req, res) => {
+    try {
+        let total = 0;
+        let empruntes = 0;
+        
+        try {
+            const db = mongoose.connection.db || mongoose.connection;
+            total = await db.collection("publications").countDocuments();
+            empruntes = await db.collection("publications").countDocuments({
+                FIELD9: { $exists: true, $ne: '' }
+            });
+        } catch (dbError) {
+            console.log('Erreur base de données, utilisation des valeurs par défaut:', dbError.message);
+            total = 0;
+            empruntes = 0;
+        }
+        
+        const disponibles = total - empruntes;
+        const pourcentage = total > 0 ? Math.round((empruntes / total) * 100) : 0;
+        const pourcentageDisponibles = 100 - pourcentage;
+
+        console.log('📊 Données envoyées au template:', {
+            total, empruntes, disponibles, pourcentage, pourcentageDisponibles
+        });
+        
+        res.render("statistiques", {
+            title: "Statistiques de la médiathèque", 
+            total: total,
+            empruntes: empruntes,
+            disponibles: disponibles,
+            pourcentage: pourcentage,
+            pourcentageDisponibles: pourcentageDisponibles
+        });
+        
+    } catch (error) {
+        console.error('Erreur globale stats:', error);
+        res.render("statistiques", {
+            title: "Statistiques de la médiathèque", 
+            total: 0,
+            empruntes: 0,
+            disponibles: 0,
+            pourcentage: 0,
+            pourcentageDisponibles: 100
+        });
+    }
+});
+
 app.get("/rechercher", async function(req, res) {
     try {
         const searchQuery = req.query.q || '';
@@ -370,6 +418,9 @@ app.post('/retourner/:id', async (req, res) => {
         });
     }
 });
+
+
+
 
 app.listen(3000, function(req, res){
     console.log("tout marche bien!");
