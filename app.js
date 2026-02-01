@@ -70,7 +70,7 @@ app.get("/", async function(req, res){
             auteur: livre.fields?.auteur || livre.auteur || 'Auteur inconnu',
             type: livre.fields?.type_de_document || livre.type || 'Non spécifié',
             statut: 'Disponible', 
-            reservations: livre.fields?.nombre_de_reservation || 0,
+            reservations: livre.fields?.nombre_de_reservations || 0,
             rang: livre.fields?.rang || 0
         }));
         res.render("Page_accueil", {
