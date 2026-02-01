@@ -52,7 +52,13 @@ app.use(function(req,res,next){
 const reset = require("./models/reset");
 
 app.get("/", function(req, res){
-    res.render("Page_accueil");
+    res.render("Page_accueil", {
+        searchQuery: "",
+        type: "",
+        statut: "",
+        tri: "alphabetique",
+        user: req.user || null
+    });
 });
 
 app.get("/inscription", function(req, res){
@@ -222,6 +228,51 @@ function isLoggedIn(req, res,next){
     }
 }
 
+app.get("/rechercher", async function(req, res) {
+    try {
+        const searchQuery = req.query.q || '';
+        const type = req.query.type || '';
+        const statut = req.query.statut || '';
+        const tri = req.query.tri || 'alphabetique';
+        console.log("Recherche avec:", { searchQuery, type, statut, tri });
+        let query = {};
+        if (searchQuery) {
+            query.$or = [
+                { "fields.titre_avec_lien_vers_le_catalogue": { $regex: searchQuery, $options: 'i' } },
+                { "fields.auteur": { $regex: searchQuery, $options: 'i' } }
+            ];
+        }
+        if (type) {
+            query.type = type;
+        }
+        if (statut) {
+            query.statut = statut;
+        }
+        let sortOption = {};
+        switch(tri) {
+            case 'reservation':
+                sortOption = { "fields.auteur": 1 };
+                break;
+            default: 
+                sortOption = { "fields.titre_avec_lien_vers_le_catalogue": 1 };
+        }
+        const livres = await Livre.find(query)
+            .sort(sortOption)
+            .limit(50);
+        console.log(`${livres.length} résultat(s) trouvé(s)`);
+        res.render("recherche", {
+            livres: livres,
+            searchQuery: searchQuery,
+            type: type,
+            statut: statut,
+            tri: tri,
+            count: livres.length
+        });
+    } catch (error) {
+        console.error("Erreur recherche:", error);
+        res.status(500).send("Erreur lors de la recherche");
+    }
+});
 
 app.listen(3000, function(req, res){
     console.log("tout marche bien!");

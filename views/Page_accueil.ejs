@@ -43,29 +43,51 @@
     <!-- Toolbar -->
     <div class="card card-rounded shadow-sm mb-3">
         <div class="card-body">
-            <div class="row g-2">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" placeholder="🔍 Rechercher un titre ou auteur">
+            <form action="/rechercher" method="GET" class="d-flex">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" placeholder="Rechercher un titre ou auteur"  value="<%= searchQuery || '' %>">
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option>Tous les types</option>
+                            <option value="Bande dessinée jeunesse" <%= type === 'Bande dessinée jeunesse' ? 'selected' : '' %>>Bande dessinée jeunesse</option>
+                            <option value="Bande dessinée jeunesse >12" <%= type === 'Bande dessinée jeunesse >12' ? 'selected' : '' %>>Bande dessinée jeunesse >12</option>
+                            <option value="Bande dessinée pour adulte" <%= type === 'Bande dessinée pour adulte' ? 'selected' : '' %>>Bande dessinée pour adulte</option>
+                            <option value="DVD en audio-description" <%= type === 'DVD en audio-description' ? 'selected' : '' %>>DVD en audio-description</option>
+                            <option value="DVD jeunesse" <%= type === 'DVD jeunesse' ? 'selected' : '' %>>DVD jeunesse</option>
+                            <option value="DVD- vidéo >12 ans" <%= type === 'DVD- vidéo >12 ans' ? 'selected' : '' %>DVD- vidéo >12 ans</option>
+                            <option value="DVD-vidéo >16 ans" <%= type === 'DVD-vidéo >16 ans' ? 'selected' : '' %>DVD-vidéo >16 ans</option>
+                            <option value="DVD-vidéo tous publics" <%= type === 'DVD-vidéo tous publics' ? 'selected' : '' %>DVD-vidéo tous publics</option>
+                            <option value="Disque compact" <%= type === 'Disque compact' ? 'selected' : '' %>Disque compact</option>
+                            <option value="Enregistrement musical pour la jeunesse" <%= type === 'Enregistrement musical pour la jeunesse' ? 'selected' : '' %>Enregistrement musical pour la jeunesse</option>
+                            <option value="Livre de Fonds spécialisés" <%= type === 'Livre de Fonds spécialisés' ? 'selected' : '' %>Livre de Fonds spécialisés</option>
+                            <option value="Livre de section jeunesse > 12 ans" <%= type === 'Livre de section jeunesse > 12 ans' ? 'selected' : '' %>Livre de section jeunesse > 12 ans</option>
+                            <option value="Livre jeunesse" <%= type === 'Livre jeunesse' ? 'selected' : '' %>Livre jeunesse</option>
+                            <option value="Livre pour adulte" <%= type === 'Livre pour adulte' ? 'selected' : '' %>Livre pour adulte</option>
+                            <option value="Nouveauté" <%= type === 'Nouveauté' ? 'selected' : '' %>Nouveauté</option>
+                            <option value="Nouveauté disque compact" <%= type === 'Nouveauté disque compact' ? 'selected' : '' %>Nouveauté disque compact</option>
+                            <option value="Revue pour adulte" <%= type === 'Revue pour adulte' ? 'selected' : '' %>Revue pour adulte</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option>Tous les statuts</option>
+                            <option value="disponible" <%= statut === 'disponible' ? 'selected' : '' %>>Disponible</option>
+                            <option value="emprunte" <%= statut === 'emprunte' ? 'selected' : '' %>>Emprunté</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select">
+                            <option value="alphabetique" <%= tri === 'alphabetique' ? 'selected' : '' %>>Tri alphabétique</option>
+                            <option value="reservation" <%= tri === 'reservation' ? 'selected' : '' %>>Tri par réservations</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-grid">
+                        <button class="btn btn-primary">📚 Charger</button>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option>Tous les types</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option>Tous les statuts</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option>Tri alphabétique</option>
-                    </select>
-                </div>
-                <div class="col-md-2 d-grid">
-                    <button class="btn btn-primary">📚 Charger</button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 
