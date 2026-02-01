@@ -214,6 +214,14 @@ app.post("/renitialiser/:token", async function(req, res) {
     }
 });
 
+function isLoggedIn(req, res,next){
+    if(req.isAuthenticated()){
+        return next();
+    }else{
+        res.redirect("/connexion")
+    }
+}
+
 
 app.listen(3000, function(req, res){
     console.log("tout marche bien!");
